@@ -489,6 +489,13 @@ export interface AxiosInterceptorManager<V> {
   clear(): void;
 }
 
+// Request log entry format
+export interface RequestLogEntry {
+  method: string;
+  url: string;
+  status: number;
+}
+
 export class Axios {
   constructor(config?: AxiosRequestConfig);
   defaults: AxiosDefaults;
@@ -508,7 +515,20 @@ export class Axios {
   postForm<T = any, R = AxiosResponse<T>, D = any>(url: string, data?: D, config?: AxiosRequestConfig<D>): Promise<R>;
   putForm<T = any, R = AxiosResponse<T>, D = any>(url: string, data?: D, config?: AxiosRequestConfig<D>): Promise<R>;
   patchForm<T = any, R = AxiosResponse<T>, D = any>(url: string, data?: D, config?: AxiosRequestConfig<D>): Promise<R>;
+  
+  // Request logging
+  enable_request_logging(): void;
+
+  // Disable request logging
+  disable_request_logging(): void;
+
+  // Get the current request log entries
+  get_request_log(): RequestLogEntry[];
+
+  // Clear all request log entries
+  clear_request_log(): void;
 }
+
 
 export interface AxiosInstance extends Axios {
   <T = any, R = AxiosResponse<T>, D = any>(config: AxiosRequestConfig<D>): Promise<R>;

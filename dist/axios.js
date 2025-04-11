@@ -5,70 +5,19 @@
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.axios = factory());
 })(this, (function () { 'use strict';
 
-  function _AsyncGenerator(e) {
-    var r, t;
-    function resume(r, t) {
-      try {
-        var n = e[r](t),
-          o = n.value,
-          u = o instanceof _OverloadYield;
-        Promise.resolve(u ? o.v : o).then(function (t) {
-          if (u) {
-            var i = "return" === r ? "return" : "next";
-            if (!o.k || t.done) return resume(i, t);
-            t = e[i](t).value;
-          }
-          settle(n.done ? "return" : "normal", t);
-        }, function (e) {
-          resume("throw", e);
-        });
-      } catch (e) {
-        settle("throw", e);
-      }
-    }
-    function settle(e, n) {
-      switch (e) {
-        case "return":
-          r.resolve({
-            value: n,
-            done: !0
-          });
-          break;
-        case "throw":
-          r.reject(n);
-          break;
-        default:
-          r.resolve({
-            value: n,
-            done: !1
-          });
-      }
-      (r = r.next) ? resume(r.key, r.arg) : t = null;
-    }
-    this._invoke = function (e, n) {
-      return new Promise(function (o, u) {
-        var i = {
-          key: e,
-          arg: n,
-          resolve: o,
-          reject: u,
-          next: null
-        };
-        t ? t = t.next = i : (r = t = i, resume(e, n));
-      });
-    }, "function" != typeof e.return && (this.return = void 0);
+  function _OverloadYield(e, d) {
+    this.v = e, this.k = d;
   }
-  _AsyncGenerator.prototype["function" == typeof Symbol && Symbol.asyncIterator || "@@asyncIterator"] = function () {
-    return this;
-  }, _AsyncGenerator.prototype.next = function (e) {
-    return this._invoke("next", e);
-  }, _AsyncGenerator.prototype.throw = function (e) {
-    return this._invoke("throw", e);
-  }, _AsyncGenerator.prototype.return = function (e) {
-    return this._invoke("return", e);
-  };
-  function _OverloadYield(t, e) {
-    this.v = t, this.k = e;
+  function _arrayLikeToArray(r, a) {
+    (null == a || a > r.length) && (a = r.length);
+    for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e];
+    return n;
+  }
+  function _arrayWithHoles(r) {
+    if (Array.isArray(r)) return r;
+  }
+  function _arrayWithoutHoles(r) {
+    if (Array.isArray(r)) return _arrayLikeToArray(r);
   }
   function _asyncGeneratorDelegate(t) {
     var e = {},
@@ -136,8 +85,106 @@
       }
     }, new AsyncFromSyncIterator(r);
   }
+  function asyncGeneratorStep(n, t, e, r, o, a, c) {
+    try {
+      var i = n[a](c),
+        u = i.value;
+    } catch (n) {
+      return void e(n);
+    }
+    i.done ? t(u) : Promise.resolve(u).then(r, o);
+  }
+  function _asyncToGenerator(n) {
+    return function () {
+      var t = this,
+        e = arguments;
+      return new Promise(function (r, o) {
+        var a = n.apply(t, e);
+        function _next(n) {
+          asyncGeneratorStep(a, r, o, _next, _throw, "next", n);
+        }
+        function _throw(n) {
+          asyncGeneratorStep(a, r, o, _next, _throw, "throw", n);
+        }
+        _next(void 0);
+      });
+    };
+  }
   function _awaitAsyncGenerator(e) {
     return new _OverloadYield(e, 0);
+  }
+  function _classCallCheck(a, n) {
+    if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function");
+  }
+  function _defineProperties(e, r) {
+    for (var t = 0; t < r.length; t++) {
+      var o = r[t];
+      o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o);
+    }
+  }
+  function _createClass(e, r, t) {
+    return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", {
+      writable: !1
+    }), e;
+  }
+  function _createForOfIteratorHelper(r, e) {
+    var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
+    if (!t) {
+      if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) {
+        t && (r = t);
+        var n = 0,
+          F = function () {};
+        return {
+          s: F,
+          n: function () {
+            return n >= r.length ? {
+              done: !0
+            } : {
+              done: !1,
+              value: r[n++]
+            };
+          },
+          e: function (r) {
+            throw r;
+          },
+          f: F
+        };
+      }
+      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+    }
+    var o,
+      a = !0,
+      u = !1;
+    return {
+      s: function () {
+        t = t.call(r);
+      },
+      n: function () {
+        var r = t.next();
+        return a = r.done, r;
+      },
+      e: function (r) {
+        u = !0, o = r;
+      },
+      f: function () {
+        try {
+          a || null == t.return || t.return();
+        } finally {
+          if (u) throw o;
+        }
+      }
+    };
+  }
+  function _defineProperty(e, r, t) {
+    return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
+      value: t,
+      enumerable: !0,
+      configurable: !0,
+      writable: !0
+    }) : e[r] = t, e;
+  }
+  function _iterableToArray(r) {
+    if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r);
   }
   function _iterableToArrayLimit(r, l) {
     var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
@@ -165,6 +212,12 @@
       }
       return a;
     }
+  }
+  function _nonIterableRest() {
+    throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+  }
+  function _nonIterableSpread() {
+    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
   function ownKeys(e, r) {
     var t = Object.keys(e);
@@ -295,7 +348,7 @@
     function makeInvokeMethod(e, r, n) {
       var o = h;
       return function (i, a) {
-        if (o === f) throw new Error("Generator is already running");
+        if (o === f) throw Error("Generator is already running");
         if (o === s) {
           if ("throw" === i) throw a;
           return {
@@ -437,7 +490,7 @@
             } else if (c) {
               if (this.prev < i.catchLoc) return handle(i.catchLoc, !0);
             } else {
-              if (!u) throw new Error("try statement without catch or finally");
+              if (!u) throw Error("try statement without catch or finally");
               if (this.prev < i.finallyLoc) return handle(i.finallyLoc);
             }
           }
@@ -477,7 +530,7 @@
             return o;
           }
         }
-        throw new Error("illegal catch attempt");
+        throw Error("illegal catch attempt");
       },
       delegateYield: function (e, r, n) {
         return this.delegate = {
@@ -487,6 +540,15 @@
         }, "next" === this.method && (this.arg = t), y;
       }
     }, e;
+  }
+  function _slicedToArray(r, e) {
+    return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest();
+  }
+  function _toArray(r) {
+    return _arrayWithHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableRest();
+  }
+  function _toConsumableArray(r) {
+    return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread();
   }
   function _toPrimitive(t, r) {
     if ("object" != typeof t || !t) return t;
@@ -500,7 +562,7 @@
   }
   function _toPropertyKey(t) {
     var i = _toPrimitive(t, "string");
-    return "symbol" == typeof i ? i : String(i);
+    return "symbol" == typeof i ? i : i + "";
   }
   function _typeof(o) {
     "@babel/helpers - typeof";
@@ -511,165 +573,80 @@
       return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
     }, _typeof(o);
   }
-  function _wrapAsyncGenerator(fn) {
+  function _unsupportedIterableToArray(r, a) {
+    if (r) {
+      if ("string" == typeof r) return _arrayLikeToArray(r, a);
+      var t = {}.toString.call(r).slice(8, -1);
+      return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0;
+    }
+  }
+  function _wrapAsyncGenerator(e) {
     return function () {
-      return new _AsyncGenerator(fn.apply(this, arguments));
+      return new AsyncGenerator(e.apply(this, arguments));
     };
   }
-  function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
-    try {
-      var info = gen[key](arg);
-      var value = info.value;
-    } catch (error) {
-      reject(error);
-      return;
+  function AsyncGenerator(e) {
+    var r, t;
+    function resume(r, t) {
+      try {
+        var n = e[r](t),
+          o = n.value,
+          u = o instanceof _OverloadYield;
+        Promise.resolve(u ? o.v : o).then(function (t) {
+          if (u) {
+            var i = "return" === r ? "return" : "next";
+            if (!o.k || t.done) return resume(i, t);
+            t = e[i](t).value;
+          }
+          settle(n.done ? "return" : "normal", t);
+        }, function (e) {
+          resume("throw", e);
+        });
+      } catch (e) {
+        settle("throw", e);
+      }
     }
-    if (info.done) {
-      resolve(value);
-    } else {
-      Promise.resolve(value).then(_next, _throw);
+    function settle(e, n) {
+      switch (e) {
+        case "return":
+          r.resolve({
+            value: n,
+            done: !0
+          });
+          break;
+        case "throw":
+          r.reject(n);
+          break;
+        default:
+          r.resolve({
+            value: n,
+            done: !1
+          });
+      }
+      (r = r.next) ? resume(r.key, r.arg) : t = null;
     }
-  }
-  function _asyncToGenerator(fn) {
-    return function () {
-      var self = this,
-        args = arguments;
-      return new Promise(function (resolve, reject) {
-        var gen = fn.apply(self, args);
-        function _next(value) {
-          asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
-        }
-        function _throw(err) {
-          asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
-        }
-        _next(undefined);
-      });
-    };
-  }
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-  function _defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];
-      descriptor.enumerable = descriptor.enumerable || false;
-      descriptor.configurable = true;
-      if ("value" in descriptor) descriptor.writable = true;
-      Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor);
-    }
-  }
-  function _createClass(Constructor, protoProps, staticProps) {
-    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-    if (staticProps) _defineProperties(Constructor, staticProps);
-    Object.defineProperty(Constructor, "prototype", {
-      writable: false
-    });
-    return Constructor;
-  }
-  function _defineProperty(obj, key, value) {
-    key = _toPropertyKey(key);
-    if (key in obj) {
-      Object.defineProperty(obj, key, {
-        value: value,
-        enumerable: true,
-        configurable: true,
-        writable: true
-      });
-    } else {
-      obj[key] = value;
-    }
-    return obj;
-  }
-  function _slicedToArray(arr, i) {
-    return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
-  }
-  function _toArray(arr) {
-    return _arrayWithHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableRest();
-  }
-  function _toConsumableArray(arr) {
-    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
-  }
-  function _arrayWithoutHoles(arr) {
-    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
-  }
-  function _arrayWithHoles(arr) {
-    if (Array.isArray(arr)) return arr;
-  }
-  function _iterableToArray(iter) {
-    if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter);
-  }
-  function _unsupportedIterableToArray(o, minLen) {
-    if (!o) return;
-    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
-    var n = Object.prototype.toString.call(o).slice(8, -1);
-    if (n === "Object" && o.constructor) n = o.constructor.name;
-    if (n === "Map" || n === "Set") return Array.from(o);
-    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
-  }
-  function _arrayLikeToArray(arr, len) {
-    if (len == null || len > arr.length) len = arr.length;
-    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
-    return arr2;
-  }
-  function _nonIterableSpread() {
-    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-  }
-  function _nonIterableRest() {
-    throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-  }
-  function _createForOfIteratorHelper(o, allowArrayLike) {
-    var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"];
-    if (!it) {
-      if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") {
-        if (it) o = it;
-        var i = 0;
-        var F = function () {};
-        return {
-          s: F,
-          n: function () {
-            if (i >= o.length) return {
-              done: true
-            };
-            return {
-              done: false,
-              value: o[i++]
-            };
-          },
-          e: function (e) {
-            throw e;
-          },
-          f: F
+    this._invoke = function (e, n) {
+      return new Promise(function (o, u) {
+        var i = {
+          key: e,
+          arg: n,
+          resolve: o,
+          reject: u,
+          next: null
         };
-      }
-      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-    }
-    var normalCompletion = true,
-      didErr = false,
-      err;
-    return {
-      s: function () {
-        it = it.call(o);
-      },
-      n: function () {
-        var step = it.next();
-        normalCompletion = step.done;
-        return step;
-      },
-      e: function (e) {
-        didErr = true;
-        err = e;
-      },
-      f: function () {
-        try {
-          if (!normalCompletion && it.return != null) it.return();
-        } finally {
-          if (didErr) throw err;
-        }
-      }
-    };
+        t ? t = t.next = i : (r = t = i, resume(e, n));
+      });
+    }, "function" != typeof e.return && (this.return = void 0);
   }
+  AsyncGenerator.prototype["function" == typeof Symbol && Symbol.asyncIterator || "@@asyncIterator"] = function () {
+    return this;
+  }, AsyncGenerator.prototype.next = function (e) {
+    return this._invoke("next", e);
+  }, AsyncGenerator.prototype.throw = function (e) {
+    return this._invoke("throw", e);
+  }, AsyncGenerator.prototype.return = function (e) {
+    return this._invoke("return", e);
+  };
 
   function bind(fn, thisArg) {
     return function wrap() {
@@ -2373,6 +2350,11 @@
         }).join('\n');
       }
     }, {
+      key: "getSetCookie",
+      value: function getSetCookie() {
+        return this["set-cookie"] || [];
+      }
+    }, {
       key: _Symbol$toStringTag,
       get: function get() {
         return 'AxiosHeaders';
@@ -3742,6 +3724,129 @@
     validators: validators$1
   };
 
+  var RequestLogger = /*#__PURE__*/function () {
+    function RequestLogger() {
+      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      _classCallCheck(this, RequestLogger);
+      this.logs = [];
+      this.enabled = false;
+      //MaxLogs is a positive number for memory efficiency
+      this.maxLogs = options.maxLogs !== undefined && options.maxLogs >= 0 ? options.maxLogs : 200;
+    }
+
+    /**
+     * Enable request logging
+     */
+    _createClass(RequestLogger, [{
+      key: "enable",
+      value: function enable() {
+        this.enabled = true;
+      }
+
+      /**
+       * Disable request logging
+       */
+    }, {
+      key: "disable",
+      value: function disable() {
+        this.enabled = false;
+      }
+
+      /**
+       * Check if request logging is enabled
+       * @returns {boolean} True if logging is enabled, false otherwise
+       */
+    }, {
+      key: "isEnabled",
+      value: function isEnabled() {
+        return this.enabled;
+      }
+
+      /**
+       * Add a request/response pair to the log
+       * @param {Object} config Request configuration object
+       * @param {Object|null} response Response object or null for failed/cancelled requests
+       */
+    }, {
+      key: "addLog",
+      value: function addLog(config, response) {
+        if (!this.enabled || this.maxLogs <= 0) {
+          return;
+        }
+
+        // Create log entry with relevant information
+        var logEntry = {
+          id: config.logId,
+          method: config.method ? config.method.toUpperCase() : 'GET',
+          url: config.url,
+          // For cancelled requests or network errors, response will be null
+          status: response ? response.status : 0
+        };
+
+        // Oldest logs first order - Stacked newest on top
+        this.logs.push(logEntry);
+
+        // For memory efficiency, remove oldest logs at max capacity
+        while (this.logs.length > this.maxLogs) {
+          this.logs.shift();
+        }
+      }
+
+      /**
+       * Update an existing log entry with response data
+       * @param {string|number} logId ID of the log entry to update
+       * @param {Object|null} response Response object or null for failed requests
+       */
+    }, {
+      key: "updateLog",
+      value: function updateLog(logId, response) {
+        // Important design consideration: We update logs even if logging is currently disabled
+        // This ensures requests that started when logging was enabled get proper status codes
+        if (!logId) {
+          return;
+        }
+
+        // Find the log entry by ID and update status
+        var logIndex = this.logs.findIndex(function (log) {
+          return log.id === logId;
+        });
+        if (logIndex >= 0) {
+          if (response) {
+            this.logs[logIndex].status = response.status;
+          }
+        }
+      }
+
+      /**
+       * Get all logged requests
+       * @returns {Array} Copy of the current logs array to prevent external mutation
+       */
+    }, {
+      key: "getLogs",
+      value: function getLogs() {
+        // Return the copy of array to avoid external mutation
+        return this.logs.map(function (log) {
+          return {
+            method: log.method,
+            url: log.url,
+            status: log.status
+          };
+        });
+      }
+
+      /**
+       * Clear all request logs
+       */
+    }, {
+      key: "clearLogs",
+      value: function clearLogs() {
+        this.logs = [];
+      }
+    }]);
+    return RequestLogger;
+  }();
+  var RequestLogger$1 = RequestLogger;
+
   var validators = validator.validators;
 
   /**
@@ -3759,17 +3864,61 @@
         request: new InterceptorManager$1(),
         response: new InterceptorManager$1()
       };
+
+      // Initialize request logger with options like maxlog from config if available
+      var requestLoggerOptions = instanceConfig.requestLogger || {};
+      this.requestLogger = new RequestLogger$1(requestLoggerOptions);
+
+      // Add interceptor for request logging to the HTTP interceptor levels
+      this.addLoggingInterceptors();
     }
 
     /**
-     * Dispatch a request
-     *
-     * @param {String|Object} configOrUrl The config specific for this request (merged with this.defaults)
-     * @param {?Object} config
-     *
-     * @returns {Promise} The Promise to be fulfilled
+     * Add request logging interceptors at the HTTP request and response levels
+     * @private
      */
     _createClass(Axios, [{
+      key: "addLoggingInterceptors",
+      value: function addLoggingInterceptors() {
+        var _this = this;
+        // Request interceptor to log all outgoing requests with initial status 0 (Count as incompleted)
+        this.interceptors.request.use(function (config) {
+          if (_this.requestLogger.isEnabled()) {
+            // Add unique ID to track requests 
+            config.logId = Date.now() + '-' + Math.random().toString(36);
+            // Log with null responed and initial status 0 - assume requests are unsuccessful ntil responded
+            _this.requestLogger.addLog(config, null);
+          }
+          return config;
+        }, undefined, {
+          synchronous: true
+        });
+
+        // Response interceptor to update logs with final status
+        this.interceptors.response.use(function (response) {
+          if (_this.requestLogger.isEnabled()) {
+            // Update existing logs with actual response status
+            _this.requestLogger.updateLog(response.config.logId, response);
+          }
+          return response;
+        }, function (error) {
+          // For errors (including cancellations), update with status if available
+          if (_this.requestLogger.isEnabled() && error.config) {
+            _this.requestLogger.updateLog(error.config.logId, error.response);
+          }
+          return Promise.reject(error);
+        });
+      }
+
+      /**
+       * Dispatch a request
+       *
+       * @param {String|Object} configOrUrl The config specific for this request (merged with this.defaults)
+       * @param {?Object} config
+       *
+       * @returns {Promise} The Promise to be fulfilled
+       */
+    }, {
       key: "request",
       value: (function () {
         var _request2 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(configOrUrl, config) {
@@ -3930,6 +4079,43 @@
         config = mergeConfig(this.defaults, config);
         var fullPath = buildFullPath(config.baseURL, config.url, config.allowAbsoluteUrls);
         return buildURL(fullPath, config.params, config.paramsSerializer);
+      }
+
+      /**
+       * Enable request logging
+       */
+    }, {
+      key: "enable_request_logging",
+      value: function enable_request_logging() {
+        this.requestLogger.enable();
+      }
+
+      /**
+       * Disable request logging
+       */
+    }, {
+      key: "disable_request_logging",
+      value: function disable_request_logging() {
+        this.requestLogger.disable();
+      }
+
+      /**
+       * Get the request log
+       * @returns {Array} The request log entries
+       */
+    }, {
+      key: "get_request_log",
+      value: function get_request_log() {
+        return this.requestLogger.getLogs();
+      }
+
+      /**
+       * Clear the request log
+       */
+    }, {
+      key: "clear_request_log",
+      value: function clear_request_log() {
+        this.requestLogger.clearLogs();
       }
     }]);
     return Axios;
