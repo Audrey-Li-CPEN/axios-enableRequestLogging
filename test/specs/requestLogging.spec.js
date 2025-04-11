@@ -1,5 +1,4 @@
 describe('request logging', function() {
-    // Increase the timeout for all tests in this suite
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
     
     beforeEach(function() {
@@ -280,6 +279,57 @@ describe('request logging', function() {
             expect(logs.some(log => log.url === '/first')).toBe(false);
             expect(logs.some(log => log.url === '/second')).toBe(true);
             expect(logs.some(log => log.url === '/third')).toBe(true);
+            
+            done();
+          }, 100);
+        }).catch(function(error) {
+          console.error('Test error:', error);
+          done.fail(error);
+        });
+      });
+
+      it('should maintain chronological order with oldest requests first', function(done) {
+        instance.clear_request_log();
+        
+        // Send first request
+        instance.get('/first').catch(() => {});
+        
+        getAjaxRequest().then(function(request) {
+          request.respondWith({
+            status: 200,
+            responseText: 'OK'
+          });
+          
+          // Send second request after first completes
+          instance.get('/second').catch(() => {});
+          
+          return getAjaxRequest();
+        }).then(function(request) {
+          request.respondWith({
+            status: 200,
+            responseText: 'OK'
+          });
+          
+          // Send third request after second completes
+          instance.get('/third').catch(() => {});
+          
+          return getAjaxRequest();
+        }).then(function(request) {
+          request.respondWith({
+            status: 200,
+            responseText: 'OK'
+          });
+          
+          // Check logs after all requests complete
+          setTimeout(function() {
+            const logs = instance.get_request_log();
+            
+            expect(logs.length).toEqual(3);
+            
+            // Verify chronological order - oldest request should be first
+            expect(logs[0].url).toEqual('/first');
+            expect(logs[1].url).toEqual('/second');
+            expect(logs[2].url).toEqual('/third');
             
             done();
           }, 100);

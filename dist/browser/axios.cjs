@@ -1869,6 +1869,10 @@ class AxiosHeaders {
     return Object.entries(this.toJSON()).map(([header, value]) => header + ': ' + value).join('\n');
   }
 
+  getSetCookie() {
+    return this["set-cookie"] || [];
+  }
+
   get [Symbol.toStringTag]() {
     return 'AxiosHeaders';
   }
@@ -3165,6 +3169,89 @@ var validator = {
   validators: validators$1
 };
 
+/**
+ * Create a new RequestLogger
+ * @param {Object} options Configuration options
+ * @param {Number} [options.maxLogs=200] Maximum number of logs to store
+ */
+class RequestLogger {
+
+  constructor(options = {}) {
+    this.logs = [];
+    this.enabled = false;
+    this.maxLogs = options.maxLogs || 200;
+  }
+
+  /**
+   * Enable request logging
+   */
+  enable() {
+    this.enabled = true;
+  }
+
+  /**
+   * Disable request logging
+   */
+  disable() {
+    this.enabled = false;
+  }
+
+  /**
+   * Check if request logging is enabled
+   * @returns {boolean} True if logging is enabled, false otherwise
+   */
+  isEnabled() {
+    return this.enabled;
+  }
+
+  /**
+   * Add a request/response pair to the log
+   * @param {Object} config Request configuration object
+   * @param {Object|null} response Response object or null for failed/cancelled requests
+   */
+  addLog(config, response) {
+    // Don't log if logging is disabled or maxLogs is zero
+    if (!this.enabled || this.maxLogs <= 0) {
+      return;
+    }
+    
+    // Create log entry with relevant information
+    const logEntry = {
+      method: config.method ? config.method.toUpperCase() : 'GET',
+      url: config.url,
+      // For cancelled requests or network errors, response will be null or undefined
+      status: response ? response.status : 0
+    };
+
+    // Oldest logs first order - Stacked newest on top
+    this.logs.push(logEntry);
+
+    // For memory efficiency, trim logs if we exceed the maximum
+    while (this.logs.length > this.maxLogs) {
+      // Remove oldest logs
+      this.logs.shift();
+    }
+  }
+
+  /**
+   * Get all logged requests
+   * @returns {Array} Copy of the current logs array to prevent external mutation
+   */
+  getLogs() {
+    // Return a copy of the logs array to prevent external mutation
+    return [...this.logs];
+  }
+
+  /**
+   * Clear all request logs
+   */
+  clearLogs() {
+    this.logs = [];
+  }
+}
+
+var RequestLogger$1 = RequestLogger;
+
 const validators = validator.validators;
 
 /**
@@ -3181,8 +3268,39 @@ class Axios {
       request: new InterceptorManager$1(),
       response: new InterceptorManager$1()
     };
+
+    // Initialize request logger with options like maxlog from config if available
+    const requestLoggerOptions = instanceConfig.requestLogger || {};
+    this.requestLogger = new RequestLogger$1(requestLoggerOptions);
+    
+    // Add interceptor for request logging to the HTTP interceptor levels
+    this.addLoggingInterceptors();
   }
 
+  /**
+   * Add request logging interceptors at the HTTP request and response levels
+   * @private
+   */
+  addLoggingInterceptors() {
+    // Response interceptor to log completed requests
+    this.interceptors.response.use(
+      (response) => {
+        if (this.requestLogger.isEnabled()) {
+          this.requestLogger.addLog(response.config, response);
+        }
+        return response;
+      },
+      (error) => {
+        // Log errors but NOT cancellations
+        if (this.requestLogger.isEnabled() && error.config && error.name !== 'CanceledError') {
+          this.requestLogger.addLog(error.config, error.response || null);
+        }
+        return Promise.reject(error);
+      }
+    );
+  }
+
+  
   /**
    * Dispatch a request
    *
@@ -3357,6 +3475,36 @@ class Axios {
     config = mergeConfig(this.defaults, config);
     const fullPath = buildFullPath(config.baseURL, config.url, config.allowAbsoluteUrls);
     return buildURL(fullPath, config.params, config.paramsSerializer);
+  }
+
+
+  /**
+   * Enable request logging
+   */
+  enable_request_logging() {
+    this.requestLogger.enable();
+  }
+
+  /**
+   * Disable request logging
+   */
+  disable_request_logging() {
+    this.requestLogger.disable();
+  }
+
+  /**
+   * Get the request log
+   * @returns {Array} The request log entries
+   */
+  get_request_log() {
+    return this.requestLogger.getLogs();
+  }
+
+  /**
+   * Clear the request log
+   */
+  clear_request_log() {
+    this.requestLogger.clearLogs();
   }
 }
 

@@ -41,6 +41,20 @@ describe('RequestLogger', function() {
       logger.enable();
       assert.strictEqual(logger.isEnabled(), true);
     });
+
+    it('should toggle enabled state multiple times', function() {
+      const logger = new RequestLogger();
+      assert.strictEqual(logger.isEnabled(), false);
+      
+      logger.enable();
+      assert.strictEqual(logger.isEnabled(), true);
+      
+      logger.disable();
+      assert.strictEqual(logger.isEnabled(), false);
+      
+      logger.enable();
+      assert.strictEqual(logger.isEnabled(), true);
+    });
   });
 
   describe('addLog', function() {
@@ -92,6 +106,70 @@ describe('RequestLogger', function() {
       assert.strictEqual(logger.logs.length, 2);
       assert.strictEqual(logger.logs[0].url, '/test2');
       assert.strictEqual(logger.logs[1].url, '/test3');
+    });
+
+    it('should not add logs when disabled (explicit test)', function() {
+      const logger = new RequestLogger();
+      assert.strictEqual(logger.enabled, false);
+      
+      logger.addLog({ method: 'get', url: '/test' }, { status: 200 });
+      
+      assert.strictEqual(logger.logs.length, 0);
+      
+      logger.enable();
+      logger.addLog({ method: 'get', url: '/test' }, { status: 200 });
+      assert.strictEqual(logger.logs.length, 1);
+    });
+
+    it('should use default GET method when method is missing', function() {
+      const logger = new RequestLogger();
+      logger.enable();
+      
+      logger.addLog({ url: '/test-default-method' }, { status: 200 });
+      
+      assert.strictEqual(logger.logs[0].method, 'GET');
+    });
+
+    it('should handle explicit null response', function() {
+      const logger = new RequestLogger();
+      logger.enable();
+      
+      logger.addLog({ method: 'get', url: '/test-null-response' }, null);
+      
+      assert.strictEqual(logger.logs[0].status, 0);
+    });
+
+    it('should respect zero maxLogs limit', function() {
+      const logger = new RequestLogger({ maxLogs: 0 });
+      logger.enable();
+      
+      logger.addLog({ method: 'get', url: '/test' }, { status: 200 });
+      
+      assert.strictEqual(logger.logs.length, 0);
+    });
+
+    it('should return a copy of logs from getLogs to prevent external mutation', function() {
+      const logger = new RequestLogger();
+      logger.enable();
+      
+      logger.addLog({ method: 'get', url: '/test1' }, { status: 200 });
+      
+      const logs = logger.getLogs();
+      const originalLength = logs.length;
+      
+      logs.pop();
+      
+      assert.strictEqual(logs.length, originalLength - 1);
+      assert.strictEqual(logger.getLogs().length, originalLength);
+    });
+
+    it('should handle undefined response', function() {
+      const logger = new RequestLogger();
+      logger.enable();
+      
+      logger.addLog({ method: 'get', url: '/test-undefined-response' }, undefined);
+      
+      assert.strictEqual(logger.logs[0].status, 0);
     });
   });
 
