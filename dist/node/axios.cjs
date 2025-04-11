@@ -4236,7 +4236,8 @@ class RequestLogger {
   constructor(options = {}) {
     this.logs = [];
     this.enabled = false;
-    this.maxLogs = options.maxLogs || 200;
+    //MaxLogs is a positive number for memory efficiency
+    this.maxLogs = (options.maxLogs !== undefined && options.maxLogs >= 0) ? options.maxLogs : 200;
   }
 
   /**
@@ -4267,26 +4268,46 @@ class RequestLogger {
    * @param {Object|null} response Response object or null for failed/cancelled requests
    */
   addLog(config, response) {
-    // Don't log if logging is disabled or maxLogs is zero
     if (!this.enabled || this.maxLogs <= 0) {
       return;
     }
     
     // Create log entry with relevant information
     const logEntry = {
+      id: config.logId, 
       method: config.method ? config.method.toUpperCase() : 'GET',
       url: config.url,
-      // For cancelled requests or network errors, response will be null or undefined
+      // For cancelled requests or network errors, response will be null
       status: response ? response.status : 0
     };
 
     // Oldest logs first order - Stacked newest on top
     this.logs.push(logEntry);
 
-    // For memory efficiency, trim logs if we exceed the maximum
+    // For memory efficiency, remove oldest logs at max capacity
     while (this.logs.length > this.maxLogs) {
-      // Remove oldest logs
       this.logs.shift();
+    }
+  }
+
+  /**
+   * Update an existing log entry with response data
+   * @param {string|number} logId ID of the log entry to update
+   * @param {Object|null} response Response object or null for failed requests
+   */
+  updateLog(logId, response) {
+    // Important design consideration: We update logs even if logging is currently disabled
+    // This ensures requests that started when logging was enabled get proper status codes
+    if (!logId) {
+      return;
+    }
+    
+    // Find the log entry by ID and update status
+    const logIndex = this.logs.findIndex(log => log.id === logId);
+    if (logIndex >= 0) {
+      if (response) {
+        this.logs[logIndex].status = response.status;
+      }
     }
   }
 
@@ -4295,8 +4316,12 @@ class RequestLogger {
    * @returns {Array} Copy of the current logs array to prevent external mutation
    */
   getLogs() {
-    // Return a copy of the logs array to prevent external mutation
-    return [...this.logs];
+    // Return the copy of array to avoid external mutation
+    return this.logs.map(log => ({
+      method: log.method,
+      url: log.url,
+      status: log.status
+    }));
   }
 
   /**
@@ -4339,18 +4364,34 @@ class Axios {
    * @private
    */
   addLoggingInterceptors() {
-    // Response interceptor to log completed requests
+    // Request interceptor to log all outgoing requests with initial status 0 (Count as incompleted)
+    this.interceptors.request.use(
+      (config) => {
+        if (this.requestLogger.isEnabled()) {
+          // Add unique ID to track requests 
+          config.logId = Date.now() + '-' + Math.random().toString(36);
+          // Log with null responed and initial status 0 - assume requests are unsuccessful ntil responded
+          this.requestLogger.addLog(config, null);
+        }
+        return config;
+      },
+      undefined,
+    { synchronous: true } 
+  );
+
+    // Response interceptor to update logs with final status
     this.interceptors.response.use(
       (response) => {
         if (this.requestLogger.isEnabled()) {
-          this.requestLogger.addLog(response.config, response);
+          // Update existing logs with actual response status
+          this.requestLogger.updateLog(response.config.logId, response);
         }
         return response;
       },
       (error) => {
-        // Log errors but NOT cancellations
-        if (this.requestLogger.isEnabled() && error.config && error.name !== 'CanceledError') {
-          this.requestLogger.addLog(error.config, error.response || null);
+        // For errors (including cancellations), update with status if available
+        if (this.requestLogger.isEnabled() && error.config) {
+          this.requestLogger.updateLog(error.config.logId, error.response);
         }
         return Promise.reject(error);
       }

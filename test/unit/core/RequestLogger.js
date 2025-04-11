@@ -184,12 +184,10 @@ describe('RequestLogger', function() {
       const logs = logger.getLogs();
       assert.strictEqual(logs.length, 2);
       
-      // Check first log entry
       assert.strictEqual(logs[0].method, 'GET');
       assert.strictEqual(logs[0].url, '/test1');
       assert.strictEqual(logs[0].status, 200);
-      
-      // Check second log entry
+  
       assert.strictEqual(logs[1].method, 'POST');
       assert.strictEqual(logs[1].url, '/test2');
       assert.strictEqual(logs[1].status, 201);

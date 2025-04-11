@@ -239,7 +239,7 @@ describe('request logging', function() {
         });
         limitedInstance.enable_request_logging();
         
-        // FIRST: Send first request and wait for completion
+        // Send first request and wait for completion
         limitedInstance.get('/first').catch(() => {});
         
         getAjaxRequest().then(function(request) {
@@ -248,7 +248,7 @@ describe('request logging', function() {
             responseText: 'OK'
           });
           
-          // SECOND: Send second request after first completes
+          //Send second request after first completes
           limitedInstance.get('/second').catch(() => {});
           
           return getAjaxRequest();
@@ -258,7 +258,7 @@ describe('request logging', function() {
             responseText: 'OK'
           });
           
-          // THIRD: Send third request after second completes
+          // Send third request after second completes
           limitedInstance.get('/third').catch(() => {});
           
           return getAjaxRequest();
@@ -268,7 +268,6 @@ describe('request logging', function() {
             responseText: 'OK'
           });
           
-          // Check logs after all requests complete
           setTimeout(function() {
             const logs = limitedInstance.get_request_log();
             
@@ -319,8 +318,7 @@ describe('request logging', function() {
             status: 200,
             responseText: 'OK'
           });
-          
-          // Check logs after all requests complete
+     
           setTimeout(function() {
             const logs = instance.get_request_log();
             
@@ -383,13 +381,10 @@ describe('request logging', function() {
             responseText: 'Forbidden'
           });
           
-          // Check logs after all requests complete
           setTimeout(function() {
             const logs = instance.get_request_log();
             
             expect(logs.length).toEqual(3);
-            
-            // Check for all expected logs
             expect(logs.some(log => log.url === '/error1' && log.status === 404)).toBe(true);
             expect(logs.some(log => log.url === '/error2' && log.status === 500)).toBe(true);
             expect(logs.some(log => log.url === '/error3' && log.status === 403)).toBe(true);
@@ -412,9 +407,7 @@ describe('request logging', function() {
             responseText: 'OK'
           });
 
-          // We need to wait for the logging to complete before checking
           setTimeout(function() {
-            // Verify log was created
             const logs = instance.get_request_log();
             expect(logs.length).toEqual(1);
             expect(logs[0].url).toEqual('/test');
@@ -444,12 +437,11 @@ describe('request logging', function() {
         instance.get('/cancel-me', {
           cancelToken: source.token
         }).catch((error) => {
-          // Add debug output to see what's happening with the error
+          // Add debug output to monitor the error
           console.log('Request error type:', error.constructor.name);
           console.log('Error has config?', !!error.config);
           console.log('Error has response?', !!error.response);
           
-          // Give the logger time to process after the cancellation
           setTimeout(function() {
             const logs = instance.get_request_log();
             
@@ -457,7 +449,7 @@ describe('request logging', function() {
             console.log('Logs after cancellation:', JSON.stringify(logs));
             
             // The key expectation - we should have one log entry for the cancelled request
-            expect(logs.length).toEqual(0);
+            expect(logs.length).toEqual(1);
             
             if (logs.length > 0) {
               expect(logs[0].method).toEqual('GET');
@@ -471,7 +463,6 @@ describe('request logging', function() {
         
         // Wait for request to be created before cancelling
         getAjaxRequest().then(function(request) {
-          // Cancel the request
           source.cancel('Request cancelled for testing');
           
           // Respond to complete the request cycle
@@ -483,14 +474,14 @@ describe('request logging', function() {
       });
 
       it('should handle network errors correctly', function(done) {
-        // Temporarily uninstall jasmine ajax to simulate real network errors
+        // Temporarily simulate network errors
         jasmine.Ajax.uninstall();
         
-        // Use a timeout to ensure the request has time to fail
+        // Use a timeout to ensure time to fail
         const originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
         jasmine.DEFAULT_TIMEOUT_INTERVAL = 2000;
         
-        // Make a request to a non-existent server (should cause network error)
+        // Make a request to a non-existent server
         instance.get('http://localhost:45678/not-found')
           .catch(() => {
             // Wait to make sure the logging has time to complete
@@ -503,7 +494,7 @@ describe('request logging', function() {
               // Network errors typically have status 0
               expect(logs[0].status).toEqual(0);
               
-              // Restore jasmine ajax for other tests
+              // Restore jasmine ajax after test
               jasmine.Ajax.install();
               jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
               done();
@@ -539,7 +530,6 @@ describe('request logging', function() {
             const logs = configuredInstance.get_request_log();
             expect(logs.length).toEqual(1);
             expect(logs[0].method).toEqual('GET');
-            // The URL in the logs will include the base URL
             expect(logs[0].url).toEqual('/configured-request');
             expect(logs[0].status).toEqual(200);
             
@@ -561,7 +551,6 @@ describe('request logging', function() {
         // Process requests sequentially instead of in parallel
         function processNextMethod(index) {
           if (index >= methods.length) {
-            // All methods processed, check results
             setTimeout(function() {
               const logs = instance.get_request_log();
               

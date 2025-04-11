@@ -3730,7 +3730,8 @@
       _classCallCheck(this, RequestLogger);
       this.logs = [];
       this.enabled = false;
-      this.maxLogs = options.maxLogs || 200;
+      //MaxLogs is a positive number for memory efficiency
+      this.maxLogs = options.maxLogs !== undefined && options.maxLogs >= 0 ? options.maxLogs : 200;
     }
 
     /**
@@ -3769,26 +3770,50 @@
     }, {
       key: "addLog",
       value: function addLog(config, response) {
-        // Don't log if logging is disabled or maxLogs is zero
         if (!this.enabled || this.maxLogs <= 0) {
           return;
         }
 
         // Create log entry with relevant information
         var logEntry = {
+          id: config.logId,
           method: config.method ? config.method.toUpperCase() : 'GET',
           url: config.url,
-          // For cancelled requests or network errors, response will be null or undefined
+          // For cancelled requests or network errors, response will be null
           status: response ? response.status : 0
         };
 
         // Oldest logs first order - Stacked newest on top
         this.logs.push(logEntry);
 
-        // For memory efficiency, trim logs if we exceed the maximum
+        // For memory efficiency, remove oldest logs at max capacity
         while (this.logs.length > this.maxLogs) {
-          // Remove oldest logs
           this.logs.shift();
+        }
+      }
+
+      /**
+       * Update an existing log entry with response data
+       * @param {string|number} logId ID of the log entry to update
+       * @param {Object|null} response Response object or null for failed requests
+       */
+    }, {
+      key: "updateLog",
+      value: function updateLog(logId, response) {
+        // Important design consideration: We update logs even if logging is currently disabled
+        // This ensures requests that started when logging was enabled get proper status codes
+        if (!logId) {
+          return;
+        }
+
+        // Find the log entry by ID and update status
+        var logIndex = this.logs.findIndex(function (log) {
+          return log.id === logId;
+        });
+        if (logIndex >= 0) {
+          if (response) {
+            this.logs[logIndex].status = response.status;
+          }
         }
       }
 
@@ -3799,8 +3824,14 @@
     }, {
       key: "getLogs",
       value: function getLogs() {
-        // Return a copy of the logs array to prevent external mutation
-        return _toConsumableArray(this.logs);
+        // Return the copy of array to avoid external mutation
+        return this.logs.map(function (log) {
+          return {
+            method: log.method,
+            url: log.url,
+            status: log.status
+          };
+        });
       }
 
       /**
@@ -3850,16 +3881,30 @@
       key: "addLoggingInterceptors",
       value: function addLoggingInterceptors() {
         var _this = this;
-        // Response interceptor to log completed requests
+        // Request interceptor to log all outgoing requests with initial status 0 (Count as incompleted)
+        this.interceptors.request.use(function (config) {
+          if (_this.requestLogger.isEnabled()) {
+            // Add unique ID to track requests 
+            config.logId = Date.now() + '-' + Math.random().toString(36);
+            // Log with null responed and initial status 0 - assume requests are unsuccessful ntil responded
+            _this.requestLogger.addLog(config, null);
+          }
+          return config;
+        }, undefined, {
+          synchronous: true
+        });
+
+        // Response interceptor to update logs with final status
         this.interceptors.response.use(function (response) {
           if (_this.requestLogger.isEnabled()) {
-            _this.requestLogger.addLog(response.config, response);
+            // Update existing logs with actual response status
+            _this.requestLogger.updateLog(response.config.logId, response);
           }
           return response;
         }, function (error) {
-          // Log errors but NOT cancellations
-          if (_this.requestLogger.isEnabled() && error.config && error.name !== 'CanceledError') {
-            _this.requestLogger.addLog(error.config, error.response || null);
+          // For errors (including cancellations), update with status if available
+          if (_this.requestLogger.isEnabled() && error.config) {
+            _this.requestLogger.updateLog(error.config.logId, error.response);
           }
           return Promise.reject(error);
         });
